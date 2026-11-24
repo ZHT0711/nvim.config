@@ -476,7 +476,11 @@ config["nvim-tree"] = {
                     "<CR>",
                     function()
                         local node = api.tree.get_node_under_cursor()
-                        if node.name ~= ".." and node.fs_stat.type == "file" then
+                        if not node then
+                            return
+                        end
+
+                        if node.name ~= ".." and node.fs_stat and node.fs_stat.type == "file" then
                             -- Taken partially from:
                             -- https://support.microsoft.com/en-us/windows/common-file-name-extensions-in-windows-da4a4430-8e76-89c5-59f7-1cdbbc75cb01
                             --
