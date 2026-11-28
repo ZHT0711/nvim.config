@@ -300,7 +300,31 @@ config.lualine = {
         sections = {
             lualine_b = { "branch", "diff" },
             lualine_c = {
-                { "filename", symbols = { modified = "%#WarningMsg#●" } },
+                {
+                    "filename",
+                    symbols = { modified = "●" },
+                    fmt = function(text, component)
+                        local name, flags = text:match("^(.*) ●(.*)$")
+                        if not vim.bo.modified or not name then
+                            return text
+                        end
+
+                        -- Keep the warning color, but inherit this section's background.
+                        if not component.modified_hl then
+                            local fg = vim.api.nvim_get_hl(0, { name = "WarningMsg", link = false }).fg
+                            component.modified_hl = component:create_hl(
+                                fg and { fg = string.format("#%06x", fg) } or {},
+                                "modified"
+                            )
+                        end
+                        return name
+                            .. " "
+                            .. component:format_hl(component.modified_hl)
+                            .. "●"
+                            .. component:get_default_hl()
+                            .. flags
+                    end,
+                },
                 { "diagnostics", update_in_insert = true },
             },
             lualine_x = {
